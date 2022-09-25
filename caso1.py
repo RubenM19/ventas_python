@@ -5,7 +5,7 @@ import math
 
 def main():
     # Creamos la lista de tiendas con sus cualidades
-    stores: List[Dict[str,str,int,int,float]] = [{
+    stores: List[Dict[str, str | int | float]] = [{
         "code": "MIR",
         "name": "Miraflores",
         "min_sales": 85,
@@ -39,7 +39,7 @@ def main():
 
 
     #Creamos lista de productos
-    products: List[Dict[str, float, int]]= [{
+    products: List[Dict[str, str | float | int]]= [{
         "name": "Memoria USB Kingston 64 GB",
         "base_price": 38.90,
         "percent_dsct": 10
@@ -84,7 +84,7 @@ def main():
     #Iteramos sobre cantidad de tiendas
     for key, store in enumerate(stores):
         #Total de ventas por día obtenidas de forma aleatoria
-        sales:int = random.randint(store["min_sales"], store["max_sales"])
+        sales:int = random.randint(int(store["min_sales"]), int(store["max_sales"]))
 
         """print(f"{store['name']} Total de Tickets de Ventas: {sales}")"""
         #?Otra forma de hacer lo mismo de la línea anterior:
@@ -120,10 +120,10 @@ def main():
                
                #Valor que se usará como precio de venta 
                #El round para que el redondeo no pase de 2 decimales
-               price_sale:float = round(float(products[v]['base_price']) + (products[v]['base_price'] * store['percent_sales_price']/100), 2)
+               price_sale: float = round(float(products[v]['base_price']) + (float(products[v]['base_price']) * float(store['percent_sales_price'])/100), 2)
                
                #Calculamos el descuento del rpoducto
-               discount:float = round(price_sale * (float(products[v]['percent_dsct']/100)), 2)
+               discount: float = round(price_sale * (float(products[v]['percent_dsct'])/100), 2)
                
                #Agregamos el descuento acumulado
                ticket_discount+=discount
@@ -138,7 +138,7 @@ def main():
                #Calculamos el total de descuento
                ticket_subtotal += total
                #Detalles del ticket
-               detail: Dict[str, float, str | float] ={
+               detail: Dict[str, str | float] ={
                 "ticket_number": ticket_number,
                 "product_name": products[v]['name'],
                 "base_sale_price": products[v]['base_price'],
