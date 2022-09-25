@@ -1,6 +1,7 @@
-import enum
 from typing import List, Dict
 import random
+from config import IGV_PERCENT, QUANTITY_MAX, QUANTITY_MIN, PRODUCT_MAX, PRODUCT_MIN, VALUE_POINT, CURRENCY_SYMBOL
+import math
 
 def main():
     # Creamos la lista de tiendas con sus cualidades
@@ -85,23 +86,87 @@ def main():
         #Total de ventas por día obtenidas de forma aleatoria
         sales:int = random.randint(store["min_sales"], store["max_sales"])
 
-        print(f"{store['name']} Total de Tickets de Ventas: {sales}")
+        """print(f"{store['name']} Total de Tickets de Ventas: {sales}")"""
         #?Otra forma de hacer lo mismo de la línea anterior:
         #print("{} Total de Tickets de Ventas: {}".format(store['name'], sales))
+
+        #Declaramos una lista para que almacene los tickets de venta
+        list_ticket: List[Dict[str, str|float]] = []
+
+        #Declaramos una lista para que almacene los detalles de tickets de venta
+        list_detail: List[Dict[str, str|float]] = []
         
-        #Iteramos sobre cantidad de ventas 
+        #Iteramos sobre cantidad de ventas para crear el ticket de venta
         for i in range(sales):
+            #Los tichets de Ventas deben ser aleatorios
+
             #Debemos obtener: MIR000001
             correlative: str = str(i+1).zfill(5) #zfill() -> llena de 0 las veces que pases por parámetro
-            ticket_numer: str = f"{store['code']}{correlative}"
-            list_rand_products = random.sample(range(len(products)), random.randint(1,3))
+            
+            #Obtenermos el codigo del ticket
+            ticket_number: str = f"{store['code']}{correlative}"
+            
+            #random.simple -> Devuelve lista de números únicos
+            #Los números aleatorios obtenidos serás indices para obtener productos.
+            list_rand_products = random.sample(range(len(products)), random.randint(PRODUCT_MIN,PRODUCT_MAX))
             #[1,8,7]
+            #Variable para calcular el total acumulado
+            ticket_subtotal: float = 0
+            #Variable para almacenar el descuento acumulado
+            ticket_discount: float = 0
+
             #Iteramos sobre la lista aleatoria de productos para crear el detalle del ticket
             for k,v in enumerate(list_rand_products):
-                print(products[v]['name'])
+               
+               #Valor que se usará como precio de venta 
+               #El round para que el redondeo no pase de 2 decimales
+               price_sale:float = round(float(products[v]['base_price']) + (products[v]['base_price'] * store['percent_sales_price']/100), 2)
+               
+               #Calculamos el descuento del rpoducto
+               discount:float = round(price_sale * (float(products[v]['percent_dsct']/100)), 2)
+               
+               #Agregamos el descuento acumulado
+               ticket_discount+=discount
+               
+               #Calculamos el precio final
+               final_sale_price:float = round(price_sale - abs(discount), 2)
+
+               quantity: int = random.randint(QUANTITY_MIN, QUANTITY_MAX)
+
+               total: float = round(final_sale_price * quantity, 2)
+
+               #Calculamos el total de descuento
+               ticket_subtotal += total
+               #Detalles del ticket
+               detail: Dict[str, float, str | float] ={
+                "ticket_number": ticket_number,
+                "product_name": products[v]['name'],
+                "base_sale_price": products[v]['base_price'],
+                "sale_price": price_sale,
+                "discount": discount,
+                "final_price": final_sale_price,
+                "quantity": quantity,
+                "total": total
+               }
+               list_detail.append(detail)
+        
+            ticket_igv: float = ticket_subtotal * IGV_PERCENT/100
+            ticket_total: float = ticket_subtotal + ticket_igv
+            ticket_pint: int = math.ceil(ticket_subtotal / VALUE_POINT)
+
+            ticket: Dict[str, str|float] = {
+                "number": ticket_number,
+                "subtotal": ticket_subtotal,
+                "igv": ticket_igv,
+                "total": ticket_total,
+                "points": ticket_pint,
+                "discount": ticket_discount
+            }
+            list_ticket.append(ticket)
+        
+        print(f"Tienda: {store['name']}")
+        print(f"Total de Tickets: {len(list_ticket)}")
             
-            
-            print(ticket_numer)
 
 
 
